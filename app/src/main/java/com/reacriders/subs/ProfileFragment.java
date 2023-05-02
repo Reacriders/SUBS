@@ -29,6 +29,8 @@ public class ProfileFragment extends Fragment {
 
     private FirebaseAuth firebaseAuth;
 
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -58,8 +60,11 @@ public class ProfileFragment extends Fragment {
         } else {
             // get user email
             String email = firebaseUser.getEmail();
+            String UID = firebaseUser.getUid();
             if(email != null) {
                 binding.emailTv.setText(email); // Modify this line
+            }if(UID != null) {
+                binding.YoutubeIdTv.setText(UID); // Modify this line
             }
         }
     }

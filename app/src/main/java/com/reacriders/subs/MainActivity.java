@@ -32,7 +32,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.reacriders.subs.databinding.ActivityMainBinding;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -118,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             checkText.setText("Checking internet connection!");
             loader.setVisibility(View.VISIBLE);
+            loader1.setVisibility(View.GONE);
         }
 
         // Initialize network callback
@@ -129,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        checkText.setText("Sign in with google");
+                        checkText.setText("Sign in with Google");
                         sgnBtn.setVisibility(View.VISIBLE);
                         loader.setVisibility(View.GONE);
                     }
@@ -146,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
                         checkText.setText("Checking internet connection!");
                         sgnBtn.setVisibility(View.GONE);
                         loader.setVisibility(View.VISIBLE);
+                        loader1.setVisibility(View.GONE);
                     }
                 });
             }
@@ -208,6 +214,28 @@ public class MainActivity extends AppCompatActivity {
                         if(authResult.getAdditionalUserInfo().isNewUser()){
                             Log.d(TAG, "onSuccess: Account Created...\n"+email);
                             Toast.makeText(MainActivity.this, "Account Created...\n"+email, Toast.LENGTH_SHORT).show();
+
+                            // Create a new user with a score of 0
+                            Map<String, Object> user = new HashMap<>();
+                            user.put("score", 0);
+
+                            // Add a new document with a UID
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            db.collection("Users")
+                                    .document(uid)
+                                    .set(user)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d(TAG, "DocumentSnapshot successfully written!");
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Error writing document", e);
+                                        }
+                                    });
                         }else{
                             Log.d(TAG, "onSuccess: Logged In...\n"+email);
                             Toast.makeText(MainActivity.this, "Logged In...\n"+email, Toast.LENGTH_SHORT).show();
@@ -216,7 +244,6 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra("fragment", "profile");
                         startActivity(intent);
                         finish();
-
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -226,6 +253,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     @Override
     protected void onDestroy() {

@@ -2,15 +2,16 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorOnPrimary">
 
     <ProgressBar
+        android:id="@+id/Value_loader"
         android:layout_width="20dp"
         android:layout_height="@+id/Points"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/Points"
         app:layout_constraintBottom_toBottomOf="@id/Points"
-
         android:layout_marginEnd="35dp"/>
     <LinearLayout
         android:id="@+id/Points"
