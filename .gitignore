@@ -10,7 +10,8 @@
 .DS_Store
 /build
 /captures
-/src/debug
 .externalNativeBuild
 .cxx
 local.properties
+/src/debug/
+
