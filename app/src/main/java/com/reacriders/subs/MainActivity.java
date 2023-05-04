@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id)) // animast error
+                .requestIdToken( getString(R.string.default_web_client_id)) // animast error
                 .requestEmail()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);

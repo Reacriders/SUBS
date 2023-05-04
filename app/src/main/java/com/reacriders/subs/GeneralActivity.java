@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,7 +23,16 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.reacriders.subs.databinding.ActivityGeneralBinding;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 public class GeneralActivity extends AppCompatActivity {
+
+
+    private TextView channelNameTextView;
+    private ExecutorService executorService;
+    private Handler mainThreadHandler;
 
     // Firebase Firestore instance
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -39,13 +50,22 @@ public class GeneralActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_general);
 
-        // Initialization
-        starValue = findViewById(R.id.star_value);
-        pg = findViewById(R.id.Value_loader);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        TextView starValue = findViewById(R.id.star_value);
+        ProgressBar pg = findViewById(R.id.Value_loader);
+        channelNameTextView = findViewById(R.id.channelName);
+
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        executorService = Executors.newSingleThreadExecutor();
+        mainThreadHandler = new Handler(Looper.getMainLooper());
+
+        String channelId = "UCeP-BajiL0CeECjsKasGmAg";
+        fetchChannelName(channelId);
 
         // If the user is logged in, get the score
         FirestoreHelper.updateScore(currentUser, starValue, pg);
+
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -81,6 +101,30 @@ public class GeneralActivity extends AppCompatActivity {
             selectedFragment = new ContentFragment();  // default to ContentFragment
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+    }
+    private void fetchChannelName(String channelId) {
+        Future<String> future = executorService.submit(() -> YoutubeAPI.getChannelName(channelId));
+
+        executorService.submit(() -> {
+            try {
+                final String channelName = future.get();
+                mainThreadHandler.post(() -> {
+                    if (channelName != null) {
+                        channelNameTextView.setText(channelName);
+                    } else {
+                        channelNameTextView.setText("Channel not found");
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown();
     }
 }
 

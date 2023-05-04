@@ -5,6 +5,17 @@
     android:layout_height="match_parent"
     android:background="?attr/colorOnPrimary">
 
+    <TextView
+        android:id="@+id/channelName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Channel"
+        android:textSize="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="10dp"
+        />
     <ProgressBar
         android:id="@+id/Value_loader"
         android:layout_width="20dp"
@@ -12,7 +23,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/Points"
         app:layout_constraintBottom_toBottomOf="@id/Points"
-        android:layout_marginEnd="35dp"/>
+        android:layout_marginEnd="35dp"
+        />
     <LinearLayout
         android:id="@+id/Points"
         android:layout_width="wrap_content"

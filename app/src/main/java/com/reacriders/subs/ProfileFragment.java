@@ -40,6 +40,7 @@ public class ProfileFragment extends Fragment {
         firebaseAuth = FirebaseAuth.getInstance();
         checkUser();
 
+
         binding.logoutBtn.setOnClickListener(new View.OnClickListener() { // Modify this line
             @Override
             public void onClick(View v) {
