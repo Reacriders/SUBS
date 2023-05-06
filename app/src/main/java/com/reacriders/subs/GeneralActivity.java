@@ -127,4 +127,3 @@ public class GeneralActivity extends AppCompatActivity {
         executorService.shutdown();
     }
 }
-

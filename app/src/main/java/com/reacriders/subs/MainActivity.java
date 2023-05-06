@@ -1,4 +1,5 @@
 package com.reacriders.subs;
+import android.app.Activity;
 import android.app.UiModeManager;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +28,12 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,6 +42,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.reacriders.subs.databinding.ActivityMainBinding;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,6 +69,11 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
 
     private static final String TAG1 = "GOOGLE_SIGN_IN_TAG";
+
+    private static final int REQUEST_AUTHORIZATION = 101;
+    private GoogleAccountCredential googleAccountCredential;
+    private YouTube youtube;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,15 +194,35 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == RC_SIGN_IN){
-            Log.d(TAG1, "onActivityResult: Google sign in intent result");
+        if (requestCode == RC_SIGN_IN) {
+            Log.d(TAG, "onActivityResult: Google Signin intent result");
             Task<GoogleSignInAccount> accountTask = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
+                //google sign in Success
                 GoogleSignInAccount account = accountTask.getResult(ApiException.class);
                 firebaseAuthWithGoogleAccount(account);
 
-            }catch (Exception e){
-                Log.d(TAG1, "onActivityResult: "+e.getMessage());
+                googleAccountCredential = GoogleAccountCredential.usingOAuth2(
+                        this, Collections.singleton("https://www.googleapis.com/auth/youtube.readonly"));
+                googleAccountCredential.setSelectedAccountName(account.getEmail());
+                youtube = new YouTube.Builder(
+                        new NetHttpTransport(),
+                        new GsonFactory(),
+                        googleAccountCredential)
+                        .setApplicationName("YourAppName")
+                        .build();
+
+            } catch (Exception e) {
+                //failed google sign in
+                Log.d(TAG, "onActivityResult: " + e.getMessage());
+            }
+        }
+
+        if (requestCode == REQUEST_AUTHORIZATION) {
+            if (resultCode == Activity.RESULT_OK) {
+                fetchYoutubeChannelId();
+            } else {
+                Log.d("IDK Error", "onActivityResult: error 'I don't know'");
             }
         }
     }
@@ -214,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
                         if(authResult.getAdditionalUserInfo().isNewUser()){
                             Log.d(TAG, "onSuccess: Account Created...\n"+email);
                             Toast.makeText(MainActivity.this, "Account Created...\n"+email, Toast.LENGTH_SHORT).show();
+                            fetchYoutubeChannelId();
 
                             // Create a new user with a score of 0
                             Map<String, Object> user = new HashMap<>();
@@ -265,6 +299,48 @@ public class MainActivity extends AppCompatActivity {
         UiModeManager uiModeManager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
         return uiModeManager != null && uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_YES;
     }
-}
+    private void fetchYoutubeChannelId() {
+        new Thread(() -> {
+            try {
+                YouTube.Channels.List channelsList = youtube.channels().list("id");
+                channelsList.setMine(true);
+                ChannelListResponse response = channelsList.execute();
+                String channelId = response.getItems().get(0).getId();
 
+                Log.d("Youtube_problem_111", "Channel ID: " + channelId);
+
+                // Save channelId to Firestore
+                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                if (firebaseUser != null) {
+                    String uid = firebaseUser.getUid();
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                    // Update the "channel" field in the document with the UID
+                    db.collection("Users")
+                            .document(uid)
+                            .update("channel", channelId)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully updated with channel ID!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error updating document with channel ID", e);
+                                }
+                            });
+                }else{
+                    Log.d("Youtube_problem_111", "fetchYoutubeChannelId: firebaseUser = null ");
+                }
+
+            } catch (UserRecoverableAuthIOException e) {
+                startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
+            } catch (Exception e) {
+                Log.e("Youtube_problem_111", "Error fetching channel ID", e);
+            }
+        }).start();
+    }
+}
 
