@@ -96,7 +96,9 @@ public class FirestoreHelper {
                         }
                     });
         }
+
     }
+
 }
 
 //        FirestoreHelper.updateScore(currentUser, starValue, pg);
