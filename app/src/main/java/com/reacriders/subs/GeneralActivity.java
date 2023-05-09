@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class GeneralActivity extends AppCompatActivity {
+public class GeneralActivity extends AppCompatActivity implements YourSettingsFragment.OnYourSettingsFragmentInteractionListener {
 
     private TextView channelNameTextView;
     private ExecutorService executorService;
@@ -44,6 +44,8 @@ public class GeneralActivity extends AppCompatActivity {
     private ProgressBar pg;
 
     private ChannelWarningListener channelWarningListener;
+
+    private boolean isChannelIdNone;
 
     public void setChannelWarningListener(ChannelWarningListener channelWarningListener) {
         this.channelWarningListener = channelWarningListener;
@@ -121,6 +123,10 @@ public class GeneralActivity extends AppCompatActivity {
         executorService.shutdown();
     }
 
+    public boolean isChannelIdNone() {
+        return isChannelIdNone;
+    }
+
     private void fetchChannelName() {
         String uid = currentUser.getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -135,6 +141,7 @@ public class GeneralActivity extends AppCompatActivity {
                         Log.d("channelId", "fetchChannelName: It is none");
                         ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
                         if (profileFragment != null) {
+                            isChannelIdNone = true; //// karevor mas
                             Log.d("channelId", "fetchChannelName: It's not null");
                             profileFragment.showChannelWarning();
 
@@ -142,6 +149,7 @@ public class GeneralActivity extends AppCompatActivity {
                             channelWarningListener.onChannelWarning();
                         }
                     } else {
+                        isChannelIdNone = false; //// karevor mas
                         Future<String> future = executorService.submit(() -> YoutubeAPI.getChannelName(channelId));
                         executorService.submit(() -> {
                             try {
@@ -163,6 +171,30 @@ public class GeneralActivity extends AppCompatActivity {
                 Log.d("fail_111", "get failed with ", task.getException());
             }
         });
+    }
+
+    @Override
+    public void onLogoutClicked() {
+        ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
+        if (profileFragment != null) {
+            profileFragment.handleLogoutClicked();
+        }
+    }
+
+    @Override
+    public void onSwitchAccountClicked() {
+        ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
+        if (profileFragment != null) {
+            profileFragment.handleSwitchAccountClicked();
+        }
+    }
+
+    @Override
+    public void onUpgradeClicked() {
+        ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
+        if (profileFragment != null) {
+            profileFragment.handleUpgradeClicked();
+        }
     }
 
     public interface ChannelWarningListener {

@@ -18,6 +18,7 @@
         android:theme="@style/Theme.SUBS"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
         <activity
             android:name=".GeneralActivity"
             android:exported="false" />

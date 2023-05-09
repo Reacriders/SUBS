@@ -39,6 +39,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.reacriders.subs.databinding.ActivityMainBinding;
 
@@ -241,12 +242,12 @@ public class MainActivity extends AppCompatActivity {
                         String uid = firebaseUser.getUid();
                         String email = firebaseUser.getEmail();
 
-                        Log.d(TAG1, "onSuccess:EMAIL "+email);
-                        Log.d(TAG, "onSuccess:UID "+uid);
+                        Log.d(TAG1, "onSuccess:EMAIL " + email);
+                        Log.d(TAG, "onSuccess:UID " + uid);
 
-                        if(authResult.getAdditionalUserInfo().isNewUser()){
-                            Log.d(TAG, "onSuccess: Account Created...\n"+email);
-                            Toast.makeText(MainActivity.this, "Account Created...\n"+email, Toast.LENGTH_SHORT).show();
+                        if (authResult.getAdditionalUserInfo().isNewUser()) {
+                            Log.d(TAG, "onSuccess: Account Created...\n" + email);
+                            Toast.makeText(MainActivity.this, "Account Created...\n" + email, Toast.LENGTH_SHORT).show();
                             fetchYoutubeChannelId();
 
                             // Create a new user with a score of 0
@@ -270,9 +271,31 @@ public class MainActivity extends AppCompatActivity {
                                             Log.w(TAG, "Error writing document", e);
                                         }
                                     });
-                        }else{
-                            Log.d(TAG, "onSuccess: Logged In...\n"+email);
-                            Toast.makeText(MainActivity.this, "Logged In...\n"+email, Toast.LENGTH_SHORT).show();
+
+                            // Check if the document with the user's email exists in the FriendRequests collection
+                            db.collection("FriendRequests")
+                                    .document(email)
+                                    .get()
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if (documentSnapshot.exists()) {
+                                                // Retrieve and log the "inviter" field value
+                                                String inviter = documentSnapshot.getString("inviter");
+                                                Log.d("Inviter", "Inviter: " + inviter);
+                                            }
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Error getting document", e);
+                                        }
+                                    });
+
+                        } else {
+                            Log.d(TAG, "onSuccess: Logged In...\n" + email);
+                            Toast.makeText(MainActivity.this, "Logged In...\n" + email, Toast.LENGTH_SHORT).show();
                         }
                         Intent intent = new Intent(MainActivity.this, GeneralActivity.class);
                         intent.putExtra("fragment", "profile");
@@ -283,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG1, "onFailure: Loggin Failed "+e.getMessage());
+                        Log.d(TAG1, "onFailure: Loggin Failed " + e.getMessage());
                     }
                 });
     }

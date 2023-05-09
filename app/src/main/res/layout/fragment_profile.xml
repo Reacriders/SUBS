@@ -5,99 +5,165 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp"
-    android:gravity="center"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="50dp"
+    android:gravity="start"
     tools:context=".ProfileFragment"
     android:background="?attr/colorOnPrimary">
 
-    <TextView
-        style="@style/TextAppearance.MaterialComponents.Caption"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Account"
-        android:textColor="?attr/colorSecondary"/>
-    <TextView
-        android:id="@+id/emailTv"
-        style="@style/TextAppearance.MaterialComponents.Body1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Email"/>
-    <TextView
-        android:id="@+id/Youtube_Id_Tv"
-        style="@style/TextAppearance.MaterialComponents.Caption"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="id"/>
-
 
     <LinearLayout
-        android:id="@+id/Warning"
-        android:layout_width="wrap_content"
+        android:id="@+id/header"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginStart="50dp"
-        android:layout_marginEnd="50dp"
-        android:visibility="gone">
+        android:orientation="horizontal"
+        android:gravity="start">
 
-        <Button
-            android:id="@+id/switch_account_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@color/red"
-            android:text="⚠ Switch account ⚠" />
+        <LinearLayout
+            android:id="@+id/header_img"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/profileImageView"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:src="@drawable/ic_account_img"/>
+            <TextView
+                android:id="@+id/channelName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                android:textSize="13dp"
+                android:text="Name"
+                />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/warning_tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/customborder"
-            android:text="⚠ Warning ⚠ \nWith the selected Google account you will not be able to interact with our application. Switch your account and select the Google account associated with the YouTube channel you want us to support."
-            android:textColor="@color/red"
-            android:textAlignment="center"
-            android:textSize="12dp"/>
+        <LinearLayout
+            android:id="@+id/headerData"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="110dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/emailTv"
+                    style="@style/TextAppearance.MaterialComponents.Body1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Email" />
+
+                <TextView
+                    android:id="@+id/UID"
+                    style="@style/TextAppearance.MaterialComponents.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="id" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/my_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/my_settings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/gray"
+                    android:textSize="13dp"
+                    android:text="Settings"
+                    android:paddingHorizontal="5dp"
+                    android:paddingTop="10dp"/>
+
+                <TextView
+                    android:id="@+id/my_videos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/gray"
+                    android:textSize="13dp"
+                    android:text="Videos"
+                    android:paddingHorizontal="5dp"
+                    android:paddingTop="10dp"/>
+
+                <TextView
+                    android:id="@+id/my_friends"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/gray"
+                    android:textSize="13dp"
+                    android:text="Friends"
+                    android:paddingHorizontal="5dp"
+                    android:paddingTop="10dp"/>
+                <TextView
+                    android:id="@+id/my_tasks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/gray"
+                    android:textSize="13dp"
+                    android:text="Tasks"
+                    android:paddingHorizontal="5dp"
+                    android:paddingTop="10dp"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/my_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-        <ImageButton
-            android:id="@+id/my_settings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_accounts_settings"
-            android:backgroundTint="?attr/colorOnPrimary"
-            app:tint="?attr/colorPrimary"
-            android:padding="15dp"/>
-        <ImageButton
-            android:id="@+id/my_videos"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_video_library"
-            android:backgroundTint="?attr/colorOnPrimary"
-            app:tint="?attr/colorPrimary"
-            android:padding="15dp"/>
-        <ImageButton
-            android:id="@+id/my_friends"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_friends"
-            android:backgroundTint="?attr/colorOnPrimary"
-            app:tint="?attr/colorPrimary"
-            android:padding="15dp"/>
-    </LinearLayout>
+
     <LinearLayout
         android:id="@+id/option"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         android:gravity="center"
-        android:orientation="vertical"
-        android:layout_marginTop="30dp">
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/Warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/switch_account_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/red"
+                android:text="⚠ Switch account ⚠" />
+
+            <TextView
+                android:id="@+id/warning_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/errorborder"
+                android:text="⚠ Warning ⚠ \nWith the selected Google account you will not be able to interact with our application. Switch your account and select the Google account associated with the YouTube channel you want us to support."
+                android:textAlignment="center"
+                android:textColor="@color/red"
+                android:textSize="12dp" />
+
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/your_settings"
             android:layout_width="wrap_content"
@@ -105,24 +171,27 @@
             android:gravity="center"
             android:orientation="vertical"
             android:visibility="gone">
+
             <Button
                 android:id="@+id/logoutBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Logout"
-                android:layout_marginVertical="5dp"/>
+                android:layout_marginVertical="5dp"
+                android:text="Logout" />
+
             <Button
                 android:id="@+id/switch_account_btn_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Switch"
-                android:layout_marginVertical="5dp"/>
+                android:layout_marginVertical="5dp"
+                android:text="Switch" />
+
             <Button
                 android:id="@+id/upgrade_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Upgrade"
-                android:layout_marginVertical="5dp"/>
+                android:layout_marginVertical="5dp"
+                android:text="Upgrade" />
         </LinearLayout>
 
         <LinearLayout
@@ -132,6 +201,11 @@
             android:gravity="center"
             android:orientation="vertical"
             android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Videos" />
 
         </LinearLayout>
 
@@ -143,11 +217,34 @@
             android:orientation="vertical"
             android:visibility="gone">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Friends" />
+
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/your_Tasks"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tasks" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp" />
     </LinearLayout>
-
-
-
 
 
 </LinearLayout>

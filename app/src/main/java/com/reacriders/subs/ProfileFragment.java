@@ -1,17 +1,25 @@
 package com.reacriders.subs;
 
 import android.content.Intent;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -31,11 +39,37 @@ public class ProfileFragment extends Fragment {
     private int BoolNum = 0;
     private int track = 0;
 
+    private FrameLayout fragmentContainer;
+    private TextView mySettings, myVideos, myFriends, myTasks;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+
+        GeneralActivity parentActivity = (GeneralActivity) getActivity();
+        boolean isChannelIdNone = parentActivity.isChannelIdNone();
+
+        fragmentContainer = view.findViewById(R.id.fragment_container);
+        mySettings = view.findViewById(R.id.my_settings);
+        myVideos = view.findViewById(R.id.my_videos);
+        myFriends = view.findViewById(R.id.my_friends);
+        myTasks = view.findViewById(R.id.my_tasks);
+
+
+
+
+
+        if (isChannelIdNone) {
+            LinearLayout warningLayout = binding.Warning;
+            LinearLayout setsLayout = binding.myBar;
+            warningLayout.setVisibility(View.VISIBLE);
+            setsLayout.setVisibility(View.GONE);
+            Log.d("channel id", "fetchChannelName: got it");
+        }
+
 
         BoolNum = 0;
         track = 0;
@@ -50,13 +84,6 @@ public class ProfileFragment extends Fragment {
 
         mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
 
-        binding.logoutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                firebaseAuth.signOut();
-                checkUser();
-            }
-        });
 
         binding.switchAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,40 +91,108 @@ public class ProfileFragment extends Fragment {
                 switchAccount();
             }
         });
-        binding.switchAccountBtn2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchAccount();
-            }
-        });
-        binding.mySettings.setOnClickListener(new View.OnClickListener() {
+
+
+
+
+
+
+        mySettings.setOnClickListener(new View.OnClickListener() { //Settings
             @Override
             public void onClick(View v) {
                 if (BoolNum != 1){
-                    invis();
                     BoolNum = 1;
+                    invis();
                     track = 1;
                 }
                 if (track%2 == 0){
-                    binding.yourSettings.setVisibility(View.GONE);
+                    fragmentContainer.setVisibility(View.GONE);
+                    mySettings.setTextColor(Color.GRAY);
+                    mySettings.setText("Settings");
                 }else{
-                    binding.yourSettings.setVisibility(View.VISIBLE);
+
+                    String textToUnderline = "Settings";
+                    SpannableString spannableString = new SpannableString(textToUnderline);
+                    spannableString.setSpan(new UnderlineSpan(), 0, textToUnderline.length(), 0);
+                    mySettings.setText(spannableString);
+                    mySettings.setTextColor(getPrimaryColor());
+
+                    fragmentContainer.setVisibility(View.VISIBLE);
+                    loadFragment(new YourSettingsFragment());
+
                 }
                 track = track+1;
             }
         });
-        binding.myFriends.setOnClickListener(new View.OnClickListener() {
+        myFriends.setOnClickListener(new View.OnClickListener() {//Friends
             @Override
             public void onClick(View v) {
                 if (BoolNum != 2){
-                    invis();
                     BoolNum = 2;
+                    invis();
                     track = 1;
                 }
                 if (track%2 == 0){
-                    binding.yourSettings.setVisibility(View.GONE);
+                    fragmentContainer.setVisibility(View.GONE);
+                    myFriends.setTextColor(Color.GRAY);
+                    myFriends.setText("Friends");
                 }else{
-                    binding.yourSettings.setVisibility(View.VISIBLE);
+                    String textToUnderline = "Friends";
+                    SpannableString spannableString = new SpannableString(textToUnderline);
+                    spannableString.setSpan(new UnderlineSpan(), 0, textToUnderline.length(), 0);
+                    myFriends.setText(spannableString);
+                    myFriends.setTextColor(getPrimaryColor());
+
+                    fragmentContainer.setVisibility(View.VISIBLE);
+                }
+                track = track+1;
+            }
+        });
+        myVideos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (BoolNum != 3){
+                    BoolNum = 3;
+                    invis();
+                    track = 1;
+                }
+                if (track%2 == 0){
+                    fragmentContainer.setVisibility(View.GONE);
+                    myVideos.setTextColor(Color.GRAY);
+                    myVideos.setText("Videos");
+                }else{
+                    String textToUnderline = "Videos";
+                    SpannableString spannableString = new SpannableString(textToUnderline);
+                    spannableString.setSpan(new UnderlineSpan(), 0, textToUnderline.length(), 0);
+                    myVideos.setText(spannableString);
+                    myVideos.setTextColor(getPrimaryColor());
+
+                    fragmentContainer.setVisibility(View.VISIBLE);
+                }
+                track = track+1;
+            }
+        });
+        myTasks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (BoolNum != 4){
+                    BoolNum = 4;
+                    invis();
+                    track = 1;
+                }
+                if (track%2 == 0){
+                    fragmentContainer.setVisibility(View.GONE);
+                    myTasks.setTextColor(Color.GRAY);
+                    myTasks.setText("Tasks");
+                }else{
+                    String textToUnderline = "Tasks";
+                    SpannableString spannableString = new SpannableString(textToUnderline);
+                    spannableString.setSpan(new UnderlineSpan(), 0, textToUnderline.length(), 0);
+                    myTasks.setText(spannableString);
+                    myTasks.setTextColor(getPrimaryColor());
+
+
+                    fragmentContainer.setVisibility(View.VISIBLE);
                 }
                 track = track+1;
             }
@@ -119,7 +214,7 @@ public class ProfileFragment extends Fragment {
             if(email != null) {
                 binding.emailTv.setText(email);
             }if(UID != null) {
-                binding.YoutubeIdTv.setText(UID);
+                binding.UID.setText(UID);
             }
         }
     }
@@ -149,7 +244,46 @@ public class ProfileFragment extends Fragment {
 
     }
     private void invis(){
-        binding.yourSettings.setVisibility(View.GONE);
+        if(BoolNum != 1){
+            mySettings.setText("Settings");
+            mySettings.setTextColor(Color.GRAY);
+        }if(BoolNum != 2){
+            myFriends.setText("Friends");
+            myFriends.setTextColor(Color.GRAY);
+        }if(BoolNum != 3){
+            myVideos.setText("Videos");
+            myVideos.setTextColor(Color.GRAY);
+        }if(BoolNum != 4){
+            myTasks.setText("Tasks");
+            myTasks.setTextColor(Color.GRAY);
+        }
+
     }
+    private int getPrimaryColor() {
+        TypedArray typedArray = requireActivity().getTheme().obtainStyledAttributes(new int[]{androidx.appcompat.R.attr.colorPrimary});
+        int colorPrimary = typedArray.getColor(0, 0);
+        typedArray.recycle();
+        return colorPrimary;
+    }
+    private void loadFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getChildFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.commit();
+    }
+    public void handleLogoutClicked() {
+        firebaseAuth.signOut();
+        checkUser();
+    }
+
+    public void handleSwitchAccountClicked() {
+        switchAccount();
+    }
+
+    public void handleUpgradeClicked() {
+        // Handle upgrade button click
+    }
+
+
 
 }
