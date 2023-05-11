@@ -47,4 +47,22 @@ public class YoutubeAPI {
         }
         return null;
     }
+    public static String getProfileImageUrl(String channelId) {
+        try {
+            YouTube.Channels.List channelRequest = get().channels().list("snippet");
+            channelRequest.setId(channelId);
+            channelRequest.setKey(API_KEY); // Set the API key directly here
+            channelRequest.setFields("items(snippet(thumbnails(default(url))))");
+            ChannelListResponse response = channelRequest.execute();
+            List<Channel> channels = response.getItems();
+            if (!channels.isEmpty()) {
+                Channel channel = channels.get(0);
+                return channel.getSnippet().getThumbnails().getDefault().getUrl();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

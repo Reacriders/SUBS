@@ -25,6 +25,7 @@ import com.reacriders.subs.databinding.ActivityGeneralBinding;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import androidx.lifecycle.MutableLiveData;
 
 public class GeneralActivity extends AppCompatActivity implements YourSettingsFragment.OnYourSettingsFragmentInteractionListener {
 
@@ -46,6 +47,11 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
     private ChannelWarningListener channelWarningListener;
 
     private boolean isChannelIdNone;
+    private String channelName;
+
+
+    private MutableLiveData<String> channelNameLiveData = new MutableLiveData<>();
+    private MutableLiveData<String> profileImageUrlLiveData = new MutableLiveData<>();
 
     public void setChannelWarningListener(ChannelWarningListener channelWarningListener) {
         this.channelWarningListener = channelWarningListener;
@@ -153,24 +159,42 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
                         Future<String> future = executorService.submit(() -> YoutubeAPI.getChannelName(channelId));
                         executorService.submit(() -> {
                             try {
+                                final String profileImageUrl = YoutubeAPI.getProfileImageUrl(channelId);
                                 final String channelName = future.get();
                                 mainThreadHandler.post(() -> {
                                     if (channelName != null) {
                                         channelNameTextView.setText(channelName);
+                                        channelNameLiveData.setValue(channelName); // Set the value of MutableLiveData
                                     } else {
                                         channelNameTextView.setText("Channel not found");
+                                    }
+                                    if (profileImageUrl != null) {
+                                        profileImageUrlLiveData.setValue(profileImageUrl); // Set the value of MutableLiveData
                                     }
                                 });
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         });
+                        //Find Youtube profile image from YoutubeAPI.java and give it to Profile fragment
                     }
                 }
             } else {
                 Log.d("fail_111", "get failed with ", task.getException());
             }
         });
+    }
+
+
+
+
+
+    public MutableLiveData<String> getChannelNameLiveData() {
+        return channelNameLiveData;
+    }
+
+    public MutableLiveData<String> getProfileImageUrlLiveData() {
+        return profileImageUrlLiveData;
     }
 
     @Override

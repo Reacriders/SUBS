@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Show Google Account"
-            android:textSize="17dp"
+            android:textSize="15dp"
             android:textColor="@color/gray"/>
 
         <Switch
@@ -22,7 +22,7 @@
             android:layout_width="48dp"
             android:layout_height="32dp"
             android:layout_marginStart="10dp"
-            android:textSize="17dp"
+            android:textSize="15dp"
             android:thumbTintMode="@color/blue"/>
 
         <TextView
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:text="ON "
-            android:textSize="17dp"
+            android:textSize="15dp"
             android:textColor="@color/blue"/>
 
         <TextView
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:text="OFF"
-            android:textSize="17dp"
+            android:textSize="15dp"
             android:textColor="@color/gray"/>
     </LinearLayout>
     <LinearLayout
@@ -54,19 +54,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Logout"
-            android:textSize="17dp"/>
+            android:textSize="15dp"/>
         <Button
             android:id="@+id/switch_account_btn_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Switch"
-            android:textSize="17dp"/>
+            android:textSize="15dp"/>
         <Button
             android:id="@+id/upgrade_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Upgrade"
-            android:textSize="17dp"/>
+            android:textSize="15dp"/>
     </LinearLayout>
 
 </LinearLayout>

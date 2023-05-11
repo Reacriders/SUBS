@@ -25,12 +25,18 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="center">
-            <de.hdodenhof.circleimageview.CircleImageView
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/profileImageView"
+            <LinearLayout
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:src="@drawable/ic_account_img"/>
+                android:gravity="center">
+                <de.hdodenhof.circleimageview.CircleImageView
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/profileImageView"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/ic_account_img"/>
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/channelName"
                 android:layout_width="match_parent"
@@ -58,15 +64,19 @@
                 <TextView
                     android:id="@+id/emailTv"
                     style="@style/TextAppearance.MaterialComponents.Body1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Email" />
+                    android:gravity="center"
+                    android:textSize="15dp"
+                    android:text="Email"/>
 
                 <TextView
                     android:id="@+id/UID"
                     style="@style/TextAppearance.MaterialComponents.Caption"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="13dp"
                     android:text="id" />
             </LinearLayout>
 

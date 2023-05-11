@@ -41,6 +41,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.reacriders.subs.databinding.ActivityMainBinding;
 
 import java.util.Collections;
@@ -283,6 +284,124 @@ public class MainActivity extends AppCompatActivity {
                                                 // Retrieve and log the "inviter" field value
                                                 String inviter = documentSnapshot.getString("inviter");
                                                 Log.d("Inviter", "Inviter: " + inviter);
+
+                                                // Find the document with the name of the "inviter" value in the "Users" collection
+                                                db.collection("Users")
+                                                        .document(inviter)
+                                                        .get()
+                                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                            @Override
+                                                            public void onSuccess(DocumentSnapshot inviterDocumentSnapshot) {
+                                                                if (inviterDocumentSnapshot.exists()) {
+                                                                    // Retrieve the current score
+                                                                    int currentScore = inviterDocumentSnapshot.getLong("score").intValue();
+
+                                                                    // Add 30 to the score
+                                                                    int updatedScore = currentScore + 30;
+
+                                                                    // Update the "score" field in the inviter's document
+                                                                    db.collection("Users")
+                                                                            .document(inviter)
+                                                                            .update("score", updatedScore)
+                                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                @Override
+                                                                                public void onSuccess(Void aVoid) {
+                                                                                    Log.d(TAG, "Score successfully updated for Inviter: " + inviter);
+                                                                                }
+                                                                            })
+                                                                            .addOnFailureListener(new OnFailureListener() {
+                                                                                @Override
+                                                                                public void onFailure(@NonNull Exception e) {
+                                                                                    Log.w(TAG, "Error updating score", e);
+                                                                                }
+                                                                            });
+
+                                                                    // Add the current user's UID to the inviter's "Friends" collection
+                                                                    db.collection("Users")
+                                                                            .document(inviter)
+                                                                            .collection("Friends")
+                                                                            .document(uid)
+                                                                            .set(new HashMap<>())
+                                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                @Override
+                                                                                public void onSuccess(Void aVoid) {
+                                                                                    Log.d(TAG, "Successfully added current user to inviter's friends");
+                                                                                }
+                                                                            })
+                                                                            .addOnFailureListener(new OnFailureListener() {
+                                                                                @Override
+                                                                                public void onFailure(@NonNull Exception e) {
+                                                                                    Log.w(TAG, "Error adding current user to inviter's friends", e);
+                                                                                }
+                                                                            });
+
+                                                                    // Add the inviter to the current user's "Friends" collection
+                                                                    db.collection("Users")
+                                                                            .document(uid)
+                                                                            .collection("Friends")
+                                                                            .document(inviter)
+                                                                            .set(new HashMap<>())
+                                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                @Override
+                                                                                public void onSuccess(Void aVoid) {
+                                                                                    Log.d(TAG, "Successfully added inviter to current user's friends");
+                                                                                }
+                                                                            })
+                                                                            .addOnFailureListener(new OnFailureListener() {
+                                                                                @Override
+                                                                                public void onFailure(@NonNull Exception e) {
+                                                                                    Log.w(TAG, "Error adding inviter to current user's friends", e);
+                                                                                }
+                                                                            });
+                                                                }
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.w(TAG, "Error getting inviter document", e);
+                                                            }
+                                                        });
+
+                                                // Find the document with the name of the "uid" value in the "Users" collection
+                                                db.collection("Users")
+                                                        .document(uid)
+                                                        .get()
+                                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                            @Override
+                                                            public void onSuccess(DocumentSnapshot uidDocumentSnapshot) {
+                                                                if (uidDocumentSnapshot.exists()) {
+                                                                    // Retrieve the current score
+                                                                    int currentScore = uidDocumentSnapshot.getLong("score").intValue();
+
+                                                                    // Add 30 to the score
+                                                                    int updatedScore = currentScore + 30;
+
+                                                                    // Update the "score" field in the uid's document
+                                                                    db.collection("Users")
+                                                                            .document(uid)
+                                                                            .update("score", updatedScore)
+                                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                @Override
+                                                                                public void onSuccess(Void aVoid) {
+                                                                                    Log.d(TAG, "Score successfully updated for UID: " + uid);
+                                                                                }
+                                                                            })
+                                                                            .addOnFailureListener(new OnFailureListener() {
+                                                                                @Override
+                                                                                public void onFailure(@NonNull Exception e) {
+                                                                                    Log.w(TAG, "Error updating score for UID", e);
+                                                                                }
+                                                                            });
+                                                                }
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.w(TAG, "Error getting UID document", e);
+                                                            }
+                                                        });
                                             }
                                         }
                                     })
@@ -293,9 +412,15 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     });
 
-                        } else {
+                        }else {
                             Log.d(TAG, "onSuccess: Logged In...\n" + email);
                             Toast.makeText(MainActivity.this, "Logged In...\n" + email, Toast.LENGTH_SHORT).show();
+
+
+                            // ete Usersi mej uid i andunov documentum chka channel uremn mihat fetchYoutubeChannelId
+
+
+
                         }
                         Intent intent = new Intent(MainActivity.this, GeneralActivity.class);
                         intent.putExtra("fragment", "profile");

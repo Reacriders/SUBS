@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
@@ -29,6 +30,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.reacriders.subs.databinding.FragmentProfileBinding;
+import com.bumptech.glide.Glide;
+
 
 public class ProfileFragment extends Fragment {
 
@@ -40,7 +43,9 @@ public class ProfileFragment extends Fragment {
     private int track = 0;
 
     private FrameLayout fragmentContainer;
-    private TextView mySettings, myVideos, myFriends, myTasks;
+    private TextView mySettings, myVideos, myFriends, myTasks, chName;
+
+    private de.hdodenhof.circleimageview.CircleImageView profileImage;
 
 
     @Nullable
@@ -57,6 +62,32 @@ public class ProfileFragment extends Fragment {
         myVideos = view.findViewById(R.id.my_videos);
         myFriends = view.findViewById(R.id.my_friends);
         myTasks = view.findViewById(R.id.my_tasks);
+
+        chName = view.findViewById(R.id.channelName);
+
+        profileImage = view.findViewById(R.id.profileImageView);
+
+
+        // Observe the channel name LiveData from the parent activity
+        parentActivity.getChannelNameLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String channelName) {
+                chName.setText(channelName);
+            }
+        });
+
+        GeneralActivity generalActivity = (GeneralActivity) getActivity();
+        if (generalActivity != null) {
+            generalActivity.getProfileImageUrlLiveData().observe(getViewLifecycleOwner(), imageUrl -> {
+                if (imageUrl != null) {
+                    Glide.with(requireContext())
+                            .load(imageUrl)
+                            .into(profileImage);
+                }
+            });
+        }
+
+
 
 
 
@@ -106,6 +137,7 @@ public class ProfileFragment extends Fragment {
                     track = 1;
                 }
                 if (track%2 == 0){
+                    loadFragment(new EmptyFragment());
                     fragmentContainer.setVisibility(View.GONE);
                     mySettings.setTextColor(Color.GRAY);
                     mySettings.setText("Settings");
@@ -117,8 +149,8 @@ public class ProfileFragment extends Fragment {
                     mySettings.setText(spannableString);
                     mySettings.setTextColor(getPrimaryColor());
 
-                    fragmentContainer.setVisibility(View.VISIBLE);
                     loadFragment(new YourSettingsFragment());
+                    fragmentContainer.setVisibility(View.VISIBLE);
 
                 }
                 track = track+1;
@@ -133,6 +165,7 @@ public class ProfileFragment extends Fragment {
                     track = 1;
                 }
                 if (track%2 == 0){
+                    loadFragment(new EmptyFragment());
                     fragmentContainer.setVisibility(View.GONE);
                     myFriends.setTextColor(Color.GRAY);
                     myFriends.setText("Friends");
@@ -143,6 +176,7 @@ public class ProfileFragment extends Fragment {
                     myFriends.setText(spannableString);
                     myFriends.setTextColor(getPrimaryColor());
 
+                    loadFragment(new YourFriendsFragment());
                     fragmentContainer.setVisibility(View.VISIBLE);
                 }
                 track = track+1;
@@ -157,6 +191,7 @@ public class ProfileFragment extends Fragment {
                     track = 1;
                 }
                 if (track%2 == 0){
+                    loadFragment(new EmptyFragment());
                     fragmentContainer.setVisibility(View.GONE);
                     myVideos.setTextColor(Color.GRAY);
                     myVideos.setText("Videos");
@@ -181,6 +216,7 @@ public class ProfileFragment extends Fragment {
                     track = 1;
                 }
                 if (track%2 == 0){
+                    loadFragment(new EmptyFragment());
                     fragmentContainer.setVisibility(View.GONE);
                     myTasks.setTextColor(Color.GRAY);
                     myTasks.setText("Tasks");
@@ -283,7 +319,6 @@ public class ProfileFragment extends Fragment {
     public void handleUpgradeClicked() {
         // Handle upgrade button click
     }
-
 
 
 }
