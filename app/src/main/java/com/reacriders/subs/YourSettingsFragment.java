@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -141,17 +142,19 @@ public class YourSettingsFragment extends Fragment {
 
     private boolean getSwitchState() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("switch1_pref", Context.MODE_PRIVATE);
-        return sharedPreferences.getBoolean("state", false); // default value is false
+        return sharedPreferences.getBoolean("state", false);
     }
 
     //on off color
     private void setThumbTintColor(Switch switchView, boolean isChecked) {
-        int colorOn = ContextCompat.getColor(getActivity(), R.color.blue); // Replace with your desired color
-        int colorOff = ContextCompat.getColor(getActivity(), R.color.gray); // Replace with your desired color
+        int colorOn = ContextCompat.getColor(getActivity(), R.color.blue);
+        int colorOff = ContextCompat.getColor(getActivity(), R.color.gray);
         int colorToUse = isChecked ? colorOn : colorOff;
 
         ColorStateList thumbTintList = ColorStateList.valueOf(colorToUse);
-        switchView.setThumbTintList(thumbTintList);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            switchView.setThumbTintList(thumbTintList);
+        }
     }
 }
 

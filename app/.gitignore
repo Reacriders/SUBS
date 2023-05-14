@@ -1,1 +1,15 @@
 /build
+
+# Ignore Gradle files
+/.gradle/
+/build/
+
+# Ignore Android Studio files
+/.idea/
+/.iml
+
+# Ignore generated files
+/app/build/
+/captures/
+/externalNativeBuild/
+/local.properties

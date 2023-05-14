@@ -20,13 +20,41 @@
             android:text="Invite"
             android:textSize="15dp"/>
     </LinearLayout>
-    <LinearLayout
-        android:id="@+id/friendsLL"
-        android:layout_marginTop="40dp"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <!--Scrolling bar and inside of it Fragments for friends Here-->
-    </LinearLayout>
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/friendsLL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+            <LinearLayout
+                android:id="@+id/cactus"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:src="@drawable/cactus"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="21dp"
+                    android:textColor="@color/gray"
+                    android:textStyle="bold"
+                    android:gravity="center_horizontal"
+                    android:text="Don't worry, Trex is with you!"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </ScrollView>
+
 
 </LinearLayout>

@@ -202,6 +202,7 @@ public class ProfileFragment extends Fragment {
                     myVideos.setText(spannableString);
                     myVideos.setTextColor(getPrimaryColor());
 
+                    loadFragment(new YourVideosFragment());
                     fragmentContainer.setVisibility(View.VISIBLE);
                 }
                 track = track+1;
