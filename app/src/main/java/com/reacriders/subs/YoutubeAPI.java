@@ -79,6 +79,7 @@ public class YoutubeAPI {
             searchRequest.setOrder("date"); // Order by date
             searchRequest.setType("video"); // Only get videos
             searchRequest.setMaxResults((long) 50); // Limit to 50 videos
+            searchRequest.setFields("items(id/videoId,snippet(title,description,thumbnails/default/url))");
             SearchListResponse searchResponse = searchRequest.execute();
             return searchResponse.getItems();
         } catch (IOException e) {
@@ -99,22 +100,6 @@ public class YoutubeAPI {
                     videoDurations.put(video.getId(), video.getContentDetails().getDuration());
                 }
                 return videoDurations;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    public static String getVideoDescription(String videoId) {
-        try {
-            YouTube.Videos.List videoRequest = get().videos().list("snippet");
-            videoRequest.setId(videoId);
-            videoRequest.setKey(API_KEY);
-            VideoListResponse response = videoRequest.execute();
-            List<Video> videos = response.getItems();
-            if (!videos.isEmpty()) {
-                Video video = videos.get(0);
-                return video.getSnippet().getDescription();
             }
         } catch (IOException e) {
             e.printStackTrace();

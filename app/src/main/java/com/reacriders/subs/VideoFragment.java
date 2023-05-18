@@ -27,14 +27,15 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
 public class VideoFragment extends Fragment {
-    private String videoName, duration, imageUrl, videoId;
+    private String videoName, duration, imageUrl, videoId, description;
     private TextView videoTitle;
 
-    public VideoFragment(String videoName, String imageUrl, String duration, String videoId) {
+    public VideoFragment(String videoName, String imageUrl, String duration, String videoId, String description) {
         this.videoName = videoName;
         this.imageUrl = imageUrl;
         this.duration = duration;
         this.videoId = videoId;
+        this.description = description;
     }
 
     @Nullable
@@ -72,7 +73,7 @@ public class VideoFragment extends Fragment {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VideoPublisherFragment videoPublisherFragment = new VideoPublisherFragment(videoId, duration, videoName);
+                VideoPublisherFragment videoPublisherFragment = new VideoPublisherFragment(videoId, duration, videoName, description);
                 videoPublisherFragment.show(getFragmentManager(), "VideoPublisherFragment");
             }
         });

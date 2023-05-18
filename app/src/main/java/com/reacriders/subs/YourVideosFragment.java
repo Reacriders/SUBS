@@ -126,13 +126,14 @@ public class YourVideosFragment extends Fragment {
                         String videoId = video.getId().getVideoId();  // Get the video id
 
                         String videoName = video.getSnippet().getTitle();
+                        String description = video.getSnippet().getDescription(); // Get the video description
                         String videoImageUrl = video.getSnippet().getThumbnails().getDefault().getUrl();
                         String videoDuration = convertISO8601Duration(entry.getValue());
 
-                        Log.d("VideosData", "Video name: " + videoName + ", Image URL: " + videoImageUrl + ", Duration: " + videoDuration);
+                        Log.d("VideosData", "Video name: " + videoName + ", Description: " + description + ", Image URL: " + videoImageUrl + ", Duration: " + videoDuration);
 
                         // Create a new VideoFragment for this video, pass videoId as argument
-                        VideoFragment videoFragment = new VideoFragment(videoName, videoImageUrl, videoDuration, videoId);
+                        VideoFragment videoFragment = new VideoFragment(videoName, videoImageUrl, videoDuration, videoId, description);
                         // Add the fragment to the container
                         fragmentTransaction.add(R.id.videos_container, videoFragment);
                         videoFragments.add(videoFragment);
