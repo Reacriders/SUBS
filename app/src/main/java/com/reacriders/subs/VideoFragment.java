@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,22 +27,21 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
 public class VideoFragment extends Fragment {
-    private String videoName;
-    private String duration;
-    private String imageUrl;
-    private TextView videoTitle;  // Declare as instance variable
+    private String videoName, duration, imageUrl, videoId;
+    private TextView videoTitle;
 
-    public VideoFragment(String videoName, String imageUrl, String duration) {
+    public VideoFragment(String videoName, String imageUrl, String duration, String videoId) {
         this.videoName = videoName;
         this.imageUrl = imageUrl;
         this.duration = duration;
+        this.videoId = videoId;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.video, container, false);
-        videoTitle = view.findViewById(R.id.videoTitle);  // Assign here
+        videoTitle = view.findViewById(R.id.videoTitle);
         videoTitle.setText(videoName);
 
         TextView videoDuration = view.findViewById(R.id.videoDuration);
@@ -67,6 +67,15 @@ public class VideoFragment extends Fragment {
                     })
                     .into(imageData);
         }
+
+        // Set OnClickListener to the root view of the fragment
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                VideoPublisherFragment videoPublisherFragment = new VideoPublisherFragment(videoId, duration, videoName);
+                videoPublisherFragment.show(getFragmentManager(), "VideoPublisherFragment");
+            }
+        });
 
         return view;
     }

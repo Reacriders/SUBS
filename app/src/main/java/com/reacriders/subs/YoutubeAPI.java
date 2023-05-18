@@ -105,4 +105,20 @@ public class YoutubeAPI {
         }
         return null;
     }
+    public static String getVideoDescription(String videoId) {
+        try {
+            YouTube.Videos.List videoRequest = get().videos().list("snippet");
+            videoRequest.setId(videoId);
+            videoRequest.setKey(API_KEY);
+            VideoListResponse response = videoRequest.execute();
+            List<Video> videos = response.getItems();
+            if (!videos.isEmpty()) {
+                Video video = videos.get(0);
+                return video.getSnippet().getDescription();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

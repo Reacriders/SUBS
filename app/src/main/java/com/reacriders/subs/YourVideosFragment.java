@@ -123,14 +123,16 @@ public class YourVideosFragment extends Fragment {
 
                     for (Map.Entry<SearchResult, String> entry : videosWithDurations.entrySet()) {
                         SearchResult video = entry.getKey();
+                        String videoId = video.getId().getVideoId();  // Get the video id
+
                         String videoName = video.getSnippet().getTitle();
                         String videoImageUrl = video.getSnippet().getThumbnails().getDefault().getUrl();
                         String videoDuration = convertISO8601Duration(entry.getValue());
 
                         Log.d("VideosData", "Video name: " + videoName + ", Image URL: " + videoImageUrl + ", Duration: " + videoDuration);
 
-                        // Create a new VideoFragment for this video
-                        VideoFragment videoFragment = new VideoFragment(videoName, videoImageUrl, videoDuration);
+                        // Create a new VideoFragment for this video, pass videoId as argument
+                        VideoFragment videoFragment = new VideoFragment(videoName, videoImageUrl, videoDuration, videoId);
                         // Add the fragment to the container
                         fragmentTransaction.add(R.id.videos_container, videoFragment);
                         videoFragments.add(videoFragment);
