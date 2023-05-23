@@ -50,7 +50,7 @@ public class YourVideosFragment extends Fragment {
             // Get user email and UID
             email = firebaseUser.getEmail();
             uid = firebaseUser.getUid();
-            Log.d("Friends", "onCreateView: "+ uid + "\n"+ email);
+            Log.d("UrVideos", "onCreateView: "+ uid + "\n"+ email);
         }else{
             email = "null";
             uid = "null";

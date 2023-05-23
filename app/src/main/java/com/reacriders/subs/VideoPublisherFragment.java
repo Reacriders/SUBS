@@ -2,8 +2,10 @@ package com.reacriders.subs;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +13,23 @@ import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class VideoPublisherFragment extends BottomSheetDialogFragment {
 
+    private String uid, email;
     private String duration, videoName, videoUrl, videoId, description;
     private WebView webView;
     private TextView videoDuration, videoTitle, videoDescription, publishStars, publishMoney;
@@ -24,6 +37,8 @@ public class VideoPublisherFragment extends BottomSheetDialogFragment {
 
     private ImageButton backBtn, question;
     private int minutes, mmin, stars, money;
+
+    private boolean forstars = false;
 
     public VideoPublisherFragment(String videoId, String duration, String videoName, String description) {
         this.videoId = videoId;
@@ -54,6 +69,19 @@ public class VideoPublisherFragment extends BottomSheetDialogFragment {
 
         webView.getSettings().setJavaScriptEnabled(true);
 
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser != null) {
+            // Get user email and UID
+            email = firebaseUser.getEmail();
+            uid = firebaseUser.getUid();
+            Log.d("PubVideos", "onCreateView: "+ uid + "\n"+ email);
+        }else{
+            email = "null";
+            uid = "null";
+        }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("Users").document(uid);
+
 
 
 
@@ -74,7 +102,43 @@ public class VideoPublisherFragment extends BottomSheetDialogFragment {
         publishStars.setText(String.valueOf(stars));
         publishMoney.setText(String.valueOf(money));
 
-
+        publishBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                             DocumentSnapshot document = task.getResult();
+                            if (document != null && document.exists()) {
+                                // Get the score from the document
+                                long score = document.getLong("score");
+                                // Check if score is greater than stars
+                                if (score >= stars) {
+                                    forstars = true;
+                                    AttentionFragment attentionFragment = AttentionFragment.newInstance(duration, videoName, videoUrl, videoId, description, minutes, mmin, stars, money, forstars);
+                                    attentionFragment.show(getFragmentManager(), "AttentionFragment");
+                                } else {
+                                    Toast.makeText(getActivity(),"You don't have enough stars", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Log.d("PubVideos", "No such document");
+                            }
+                        } else {
+                            Log.d("PubVideos", "get failed with ", task.getException());
+                        }
+                    }
+                });
+            }
+        });
+        publishForMoneyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                forstars = false;
+                AttentionFragment attentionFragment = AttentionFragment.newInstance(duration, videoName, videoUrl, videoId, description, minutes, mmin, stars, money, forstars);
+                attentionFragment.show(getFragmentManager(), "AttentionFragment");
+            }
+        });
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
