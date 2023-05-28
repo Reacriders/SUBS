@@ -6,6 +6,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,19 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.reacriders.subs.ProfileFragment;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class YourSettingsFragment extends Fragment {
 
@@ -48,9 +61,29 @@ public class YourSettingsFragment extends Fragment {
         mListener = null;
     }
 
+    private String email, uid, channelId;
+    private final String TAG = "Settings";
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.your_settings_fragment, container, false);
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser != null) {
+            // Get user email and UID
+            email = firebaseUser.getEmail();
+            uid = firebaseUser.getUid();
+            Log.d(TAG, "onCreateView: "+ uid + "\n"+ email);
+        }else{
+            email = "null";
+            uid = "null";
+        }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("Users").document(uid);
+
+
+
+
 
         Switch switch1 = view.findViewById(R.id.switch1);
         TextView switchOn = view.findViewById(R.id.switch_on);
@@ -66,34 +99,30 @@ public class YourSettingsFragment extends Fragment {
             switchOff.setVisibility(View.VISIBLE);
             switchText1.setTextColor(Color.GRAY);
         }
-
         switch1.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            saveSwitchState(isChecked);
             setThumbTintColor(switch1, isChecked);
 
             if (isChecked) {
                 switchOn.setVisibility(View.VISIBLE);
                 switchOff.setVisibility(View.GONE);
                 switchText1.setTextColor(Color.rgb(33,150, 243));
+
+                // Write to Firestore when the switch is turned on
+                Map<String, Object> data = new HashMap<>();
+                data.put("account", email);
+                docRef.set(data, SetOptions.merge());
             } else {
                 switchOn.setVisibility(View.GONE);
                 switchOff.setVisibility(View.VISIBLE);
                 switchText1.setTextColor(Color.GRAY);
+
+                // Delete from Firestore when the switch is turned off
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("account", FieldValue.delete());
+                docRef.update(updates);
             }
         });
-        boolean switchState = getSwitchState();
-        switch1.setChecked(switchState);
-        setThumbTintColor(switch1, switchState);
 
-        if (switchState) {
-            switchOn.setVisibility(View.VISIBLE);
-            switchOff.setVisibility(View.GONE);
-            switchText1.setTextColor(Color.rgb(33,150, 243));
-        } else {
-            switchOn.setVisibility(View.GONE);
-            switchOff.setVisibility(View.VISIBLE);
-            switchText1.setTextColor(Color.GRAY);
-        }
 
 
 
@@ -127,23 +156,31 @@ public class YourSettingsFragment extends Fragment {
                 }
             }
         });
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        if(document.getString("account") != null) {
+                            switch1.setChecked(true);
+                        } else {
+                            switch1.setChecked(false);
+                        }
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
         return view;
     }
 
-
-
-    //switchi Hishox
-    private void saveSwitchState(boolean isChecked) {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("switch1_pref", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean("state", isChecked);
-        editor.apply();
-    }
-
-    private boolean getSwitchState() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("switch1_pref", Context.MODE_PRIVATE);
-        return sharedPreferences.getBoolean("state", false);
-    }
 
     //on off color
     private void setThumbTintColor(Switch switchView, boolean isChecked) {
@@ -156,5 +193,6 @@ public class YourSettingsFragment extends Fragment {
             switchView.setThumbTintList(thumbTintList);
         }
     }
+
 }
 

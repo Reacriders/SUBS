@@ -1,6 +1,7 @@
 package com.reacriders.subs;
 
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -14,13 +15,16 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -29,17 +33,25 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wallet.PaymentsClient;
+import com.google.android.gms.wallet.Wallet;
+import com.google.android.gms.wallet.WalletConstants;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
+
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AttentionFragment extends DialogFragment {
     private String uid, email, duration, videoName, videoUrl, videoId, description;
@@ -60,22 +72,25 @@ public class AttentionFragment extends DialogFragment {
 
     private boolean custom = false;
 
+    private boolean flash = false;
+
     private int colorll,colorSH,colorDefaultThumb;
 
     private int contin = 0;
 
     private Switch fleshSwitch;
 
-    private LinearLayout next_step, warn_viewers;
+    private LinearLayout next_step, warn_viewers, published;
 
-    private TextView warning_text, title;
+    private TextView warning_text, title, be4, published_tv;
+
+    private String publishTo;
 
     private String TAG = "AttentionPublisher";
 
+    private ImageView banImg, publicImg, checkingImg, lockImg;
 
-
-
-    public static AttentionFragment newInstance(String duration, String videoName, String videoUrl, String videoId, String description, int minutes, int mmin, int stars, int money, boolean forstars) {
+    public static AttentionFragment newInstance(String duration, String videoName, String videoUrl, String videoId, String description, int minutes, int mmin, int stars, int money, boolean forstars, ImageView banImg, ImageView publicImg, ImageView checkingImg, ImageView lockImg) {
         AttentionFragment fragment = new AttentionFragment();
         Bundle args = new Bundle();
         args.putString("duration", duration);
@@ -89,11 +104,18 @@ public class AttentionFragment extends DialogFragment {
         args.putInt("money", money);
         args.putBoolean("forstars", forstars);
         fragment.setArguments(args);
+
+        fragment.banImg = banImg;
+        fragment.publicImg = publicImg;
+        fragment.checkingImg = checkingImg;
+        fragment.lockImg = lockImg;
         return fragment;
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         if (getArguments() != null) {
             uid = getArguments().getString("uid");
             email = getArguments().getString("email");
@@ -110,12 +132,31 @@ public class AttentionFragment extends DialogFragment {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.attention_fragment, container, false);
         continueBtn = view.findViewById(R.id.continueBtn);
         cancelBtn = view.findViewById(R.id.cancelBtn);
+
+
+
+        GeneralActivity generalActivity = (GeneralActivity) getActivity();
+        TextView starValue = generalActivity.getStarValue();
+        ProgressBar pg = generalActivity.getPg();
+        FirebaseUser currentUser = generalActivity.getCurrentUser();
+
+
+        if(currentUser==null){
+            Log.d(TAG, "apply: User");
+        }
+        if(starValue==null){
+            Log.d(TAG, "apply: value");
+        }
+        if(pg==null){
+            Log.d(TAG, "apply: pg");
+        }
 
 
         fleshSwitch = view.findViewById(R.id.flesh_switch);
@@ -154,6 +195,9 @@ public class AttentionFragment extends DialogFragment {
         warn_viewers = view.findViewById(R.id.warn_viewers);
         warning_text = view.findViewById(R.id.warning_text);
         title = view.findViewById(R.id.title);
+        be4 = view.findViewById(R.id.be4);
+        published = view.findViewById(R.id.published);
+        published_tv = view.findViewById(R.id.published_tv);
 
         warning_text.setVisibility(View.VISIBLE);
 
@@ -179,11 +223,13 @@ public class AttentionFragment extends DialogFragment {
             colorll = ContextCompat.getColor(getContext(), R.color.blue);
             colorSH = ContextCompat.getColor(getContext(), R.color.blue);
             condition = 2;
+            publishTo = "Videos";
         }else{
             colorStateList = ContextCompat.getColorStateList(getContext(), R.color.green);
             colorll = ContextCompat.getColor(getContext(), R.color.green);
             colorSH = ContextCompat.getColor(getContext(), R.color.green);
             condition = 1;
+            publishTo = "Checkpoint";
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             continueBtn.setBackgroundTintList(colorStateList);
@@ -226,6 +272,12 @@ public class AttentionFragment extends DialogFragment {
                     next_step.setVisibility(View.GONE);
                     warn_viewers.setVisibility(View.VISIBLE);
                     continueBtn.setText("Publish");
+                    be4.setTextColor(colorll);
+                    if(forstars){
+                        be4.setText("After clicking 'Publish' button, your video will be immediately published and other users will be able to watch it.\nYour video will remain published for a week");
+                    }else{
+                        be4.setText("After clicking the 'Publish' button, your video will be sent to a checkpoint to check your video content, after checking if everything is in order, your video will be published to everyone and fall into the \"verified\" filter, the profit for viewers from your video will be doubled. But if your video fails the verification, we will block your video and you will lose your money.\nAfter checking, your video will remain published for 2 weeks");
+                    }
                 } else if (contin >= 2) {
                     docRefVideos.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
@@ -239,6 +291,7 @@ public class AttentionFragment extends DialogFragment {
                                     Log.d(TAG, "Preparing to publish!");
                                     // Check if sub-collection "myVideos" exists in the "Users" document
                                     docRef.collection("myVideos").document(videoId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @RequiresApi(api = Build.VERSION_CODES.N)
                                         @Override
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                             if (task.isSuccessful()) {
@@ -246,22 +299,33 @@ public class AttentionFragment extends DialogFragment {
                                                 if (document.exists()) {
                                                     Toast.makeText(getActivity(), "This video has already been published once", Toast.LENGTH_SHORT).show();
                                                 } else {
-                                                    Map<String, Object> newVideo = new HashMap<>();
-                                                    newVideo.put("condition", condition);
-                                                    docRef.collection("myVideos").document(videoId).set(newVideo)
-                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                @Override
-                                                                public void onSuccess(Void aVoid) {
-                                                                    Log.d(TAG, "Document successfully written!");
+                                                    if (forstars){
+                                                        db.runTransaction(new Transaction.Function<Void>() {
+                                                            @Override
+                                                            public Void apply(Transaction transaction) throws FirebaseFirestoreException {
+                                                                DocumentSnapshot snapshot = transaction.get(docRef);
+
+                                                                // Assuming "score" is an Integer
+                                                                Integer currentScore = snapshot.getLong("score").intValue();
+
+                                                                if (currentScore >= stars) {
+                                                                    // Deduct "stars" from the user's score
+
+                                                                    // Then publish the video
+                                                                    PublishVideo(db, docRef, currentUser, starValue, pg);
+                                                                    //update stars in GeneralActivity
+                                                                } else {
+                                                                    Toast.makeText(getActivity(), "No enough stars to publish this video", Toast.LENGTH_SHORT).show();
                                                                 }
-                                                            })
-                                                            .addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    Log.w(TAG, "Error writing document", e);
-                                                                }
-                                                            });
-                                                    //TODO: after 1 week condition should become 3 if forstars is true, write server side code do not run this process on device.
+
+                                                                return null;
+                                                            }
+                                                        });
+                                                    }else{
+                                                        //TODO: Pay by Google pay after payment succeed run this line "PublishVideo(db, docRef, currentUser, starValue, pg); What to import, What to implement? Give me very detailed guide, where and what to write?"
+
+                                                    }
+
                                                 }
                                             } else {
                                                 Log.d(TAG, "Failed with: ", task.getException());
@@ -274,26 +338,24 @@ public class AttentionFragment extends DialogFragment {
                             }
                         }
                     });
+
+
                 }
             }
         });
 
         fleshSwitch = view.findViewById(R.id.flesh_switch);
-
         fleshSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    // If the switch is turned on, change the thumb color to blue
+                    flash = true;
                     fleshSwitch.getThumbDrawable().setColorFilter(colorSH, PorterDuff.Mode.MULTIPLY);
                 } else {
-                    // If the switch is turned off, change the thumb color back to the default color
+                    flash = false;
                     fleshSwitch.getThumbDrawable().setColorFilter(colorDefaultThumb, PorterDuff.Mode.MULTIPLY);
                 }
             }
         });
-
-
-
         return view;
     }
 
@@ -394,4 +456,121 @@ public class AttentionFragment extends DialogFragment {
         custom = custom_bul;
         Log.d("checkCustom", "checkCustom: "+Boolean.toString(custom));
     }
+
+    private void PublishVideo(FirebaseFirestore db, DocumentReference docRef, FirebaseUser currentUser, TextView starValue, ProgressBar pg){
+        Map<String, Object> newVideo = new HashMap<>();
+        newVideo.put("condition", condition);
+        newVideo.put("publish_type", forstars);
+        docRef.collection("myVideos").document(videoId).set(newVideo)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Document successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing document", e);
+                    }
+                });
+        // Retrieve channelId from Users collection
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        String channelId = document.getString("channel");
+
+                        if (custom){
+                            OtherStr = other_ET.getText().toString();
+                        }else{
+                            OtherStr = "";
+                        }
+                        String category = Stream.of(MusicStr, GameStr, NewsStr, MemeStr, TutorialsStr, BuildStr, ArtsStr, ProgrammingStr, CookingStr, AllStr, OtherStr)
+                                .filter(s -> s != null && !s.isEmpty())
+                                .collect(Collectors.joining(","));
+                        // Prepare the data
+                        Map<String, Object> videoData = new HashMap<>();
+                        videoData.put("category", category);
+                        videoData.put("channel", channelId);
+                        videoData.put("description", description);
+                        videoData.put("publish_type", forstars);
+                        videoData.put("publisher", uid);
+                        videoData.put("reports", 0);
+                        videoData.put("title", videoName);
+                        videoData.put("duration",duration);
+                        videoData.put("flash",flash);
+                        videoData.put("minutes",minutes);
+                        if (forstars == false){
+                            videoData.put("up_votes",0);
+                            videoData.put("down_votes",0);
+                            videoData.put("votes",0);
+                            videoData.put("critics",0);
+                        }
+
+                        // video may get inside collection Videos or inside collection Checkpoint
+                        db.collection(publishTo).document(videoId).set(videoData)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        //if --- success
+                                        Log.d(TAG, "Document successfully written in Videos collection!");
+                                        if (forstars){
+                                            db.runTransaction(new Transaction.Function<Void>() {
+                                                @Override
+                                                public Void apply(Transaction transaction) throws FirebaseFirestoreException {
+                                                    DocumentSnapshot snapshot = transaction.get(docRef);
+                                                    // Assuming "score" is an Integer
+                                                    Integer currentScore = snapshot.getLong("score").intValue();
+                                                    transaction.update(docRef, "score", currentScore - stars);
+
+                                                    return null;
+                                                }
+                                            }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    FirestoreHelper.updateScore(currentUser, starValue, pg);
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG, "Transaction failed.", e);
+                                                }
+                                            });
+                                        }
+
+                                        title.setText("Successfully published");
+                                        published.setVisibility(View.VISIBLE);
+                                        warn_viewers.setVisibility(View.GONE);
+                                        continueBtn.setVisibility(View.GONE);
+                                        cancelBtn.setText("OK");
+                                        if(forstars){
+                                            published_tv.setText("Your video has been successfully published");
+                                            if(publicImg!=null){publicImg.setVisibility(View.VISIBLE);}
+                                        }else{
+                                            published_tv.setText("Your video has been successfully submitted to the checkpoint");
+                                            if(checkingImg!=null){checkingImg.setVisibility(View.VISIBLE);}
+                                        }
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error writing document in Videos collection", e);
+                                    }
+                                });
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+    }
+
+
 }

@@ -73,6 +73,9 @@ dependencies {
 
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+
+    //google pay
+    implementation 'com.google.android.gms:play-services-wallet:18.1.2'
 }
 
 afterEvaluate {

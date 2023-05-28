@@ -50,6 +50,7 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
     private String channelName;
 
 
+
     private MutableLiveData<String> channelNameLiveData = new MutableLiveData<>();
     private MutableLiveData<String> profileImageUrlLiveData = new MutableLiveData<>();
 
@@ -62,9 +63,9 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_general);
 
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        TextView starValue = findViewById(R.id.star_value);
-        ProgressBar pg = findViewById(R.id.Value_loader);
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        starValue = findViewById(R.id.star_value);
+        pg = findViewById(R.id.Value_loader);
         channelNameTextView = findViewById(R.id.channelName);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -223,6 +224,17 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
 
     public interface ChannelWarningListener {
         void onChannelWarning();
+    }
+
+    public FirebaseUser getCurrentUser() {
+        return currentUser;
+    }
+    public TextView getStarValue() {
+        return starValue;
+    }
+
+    public ProgressBar getPg() {
+        return pg;
     }
 }
 

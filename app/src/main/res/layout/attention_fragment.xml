@@ -428,6 +428,14 @@
                         android:orientation="vertical"
                         android:gravity="center_horizontal"
                         android:visibility="gone">
+                        <TextView
+                            android:id="@+id/be4"
+                            android:layout_marginBottom="10dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="17dp"
+                            android:gravity="center"
+                            android:textStyle="bold"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -451,7 +459,6 @@
                                 android:layout_width="48dp"
                                 android:layout_height="32dp"
                                 android:layout_marginStart="10dp"
-                                android:textSize="15dp"
                                 android:thumbTint="@color/gray"/>
                         </LinearLayout>
                         <TextView
@@ -460,6 +467,27 @@
                             android:gravity="center"
                             android:textSize="17dp"
                             android:text="Turn on flash warning if video you want to post contains fast motion, fast color changes, and aggressive flash."/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/published"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:visibility="gone">
+                        <androidx.constraintlayout.utils.widget.ImageFilterView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_big_check"/>
+                        <TextView
+                            android:id="@+id/published_tv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="17dp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorPrimary"
+                            android:gravity="center"
+                            android:text="Your video has been successfully published"/>
                     </LinearLayout>
 
 

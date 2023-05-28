@@ -11,11 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -27,7 +31,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class VideoPublisherFragment extends BottomSheetDialogFragment {
+public class VideoPublisherFragment extends BottomSheetDialogFragment{
 
     private String uid, email;
     private String duration, videoName, videoUrl, videoId, description;
@@ -38,19 +42,32 @@ public class VideoPublisherFragment extends BottomSheetDialogFragment {
     private ImageButton backBtn, question;
     private int minutes, mmin, stars, money;
 
+    private ImageView banImg,publicImg,checkingImg,lockImg;
+
     private boolean forstars = false;
 
-    public VideoPublisherFragment(String videoId, String duration, String videoName, String description) {
+
+
+
+
+
+
+    public VideoPublisherFragment(String videoId, String duration, String videoName, String description, ImageView banImg, ImageView publicImg, ImageView checkingImg, ImageView lockImg) {
         this.videoId = videoId;
         this.duration = duration;
         this.videoName = videoName;
         this.description = description;
+        this.banImg = banImg;
+        this.publicImg = publicImg;
+        this.checkingImg = checkingImg;
+        this.lockImg = lockImg;
     }
 
     @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.video_publisher_fragment, container, false);
+
 
         //wv
         webView = view.findViewById(R.id.video);
@@ -116,7 +133,7 @@ public class VideoPublisherFragment extends BottomSheetDialogFragment {
                                 // Check if score is greater than stars
                                 if (score >= stars) {
                                     forstars = true;
-                                    AttentionFragment attentionFragment = AttentionFragment.newInstance(duration, videoName, videoUrl, videoId, description, minutes, mmin, stars, money, forstars);
+                                    AttentionFragment attentionFragment = AttentionFragment.newInstance(duration, videoName, videoUrl, videoId, description, minutes, mmin, stars, money, forstars, banImg, publicImg, checkingImg, lockImg);
                                     attentionFragment.show(getFragmentManager(), "AttentionFragment");
                                 } else {
                                     Toast.makeText(getActivity(),"You don't have enough stars", Toast.LENGTH_SHORT).show();
@@ -135,7 +152,7 @@ public class VideoPublisherFragment extends BottomSheetDialogFragment {
             @Override
             public void onClick(View v) {
                 forstars = false;
-                AttentionFragment attentionFragment = AttentionFragment.newInstance(duration, videoName, videoUrl, videoId, description, minutes, mmin, stars, money, forstars);
+                AttentionFragment attentionFragment = AttentionFragment.newInstance(duration, videoName, videoUrl, videoId, description, minutes, mmin, stars, money, forstars, banImg, publicImg, checkingImg, lockImg);
                 attentionFragment.show(getFragmentManager(), "AttentionFragment");
             }
         });
