@@ -41,25 +41,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 public class YourFriendsFragment extends Fragment {
     private TextView uidTextView;
     private TextView emailTextView;
     private Button inviteBtn;
     private EditText inviteInput;
-
     private String uid, email;
-
     private ExecutorService executorService;
     private Handler mainThreadHandler;
-
     public YourFriendsFragment() { // replace "YourClass" with your constructor
         executorService = Executors.newSingleThreadExecutor();
         mainThreadHandler = new Handler(Looper.getMainLooper());
     }
-
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -91,9 +84,9 @@ public class YourFriendsFragment extends Fragment {
             public void onClick(View v) {
                 String to_email = inviteInput.getText().toString();
                 if (to_email.equals("")) {
-                    Toast.makeText(getActivity(), "Please write your friend's Google account to invite", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please write your friend's Email account to invite", Toast.LENGTH_SHORT).show();
                 } else if (!isValidEmail(to_email)) {
-                    Toast.makeText(getActivity(), "Please enter a valid Gmail address", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please enter a valid Email address", Toast.LENGTH_SHORT).show();
                 } else {
                     FirebaseAuth.getInstance().fetchSignInMethodsForEmail(to_email)
                             .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
@@ -164,8 +157,6 @@ public class YourFriendsFragment extends Fragment {
                 }
             }
         });
-
-
         DocumentReference docRef = db.collection("Users").document(uid);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -202,8 +193,26 @@ public class YourFriendsFragment extends Fragment {
                                                         if (!"none".equals(channelId)) {
                                                             executorService.submit(() -> {
                                                                 try {
-                                                                    final String channelName = YoutubeAPI.getChannelName(channelId);
-                                                                    final String channelImageUrl = YoutubeAPI.getProfileImageUrl(channelId);  // Fetch the channel image URL
+                                                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                                                    String userId = userDocument.getId(); // get the document name
+                                                                    DocumentReference userDocRef = db.collection("Users").document(userId);
+
+                                                                    String channelName = userDocument.contains("channelName") ? userDocument.getString("channelName") : "none";
+                                                                    String channelImageUrl = userDocument.contains("profileImageUrl") ? userDocument.getString("profileImageUrl") : "none";
+                                                                    if ("none".equals(channelName)){
+                                                                        channelName = YoutubeAPI.getChannelName(channelId);
+                                                                        userDocRef.update("channelName", channelName)
+                                                                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "channelName successfully updated!"))
+                                                                                .addOnFailureListener(e -> Log.w("Firestore", "Error updating channelName", e));
+                                                                    }
+                                                                    if ("none".equals(channelImageUrl)){
+                                                                        channelImageUrl = YoutubeAPI.getProfileImageUrl(channelId);
+                                                                        userDocRef.update("profileImageUrl", channelImageUrl)
+                                                                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "profileImageUrl successfully updated!"))
+                                                                                .addOnFailureListener(e -> Log.w("Firestore", "Error updating profileImageUrl", e));
+                                                                    }
+                                                                    String finalChannelName = channelName;
+                                                                    String finalChannelImageUrl = channelImageUrl;
                                                                     mainThreadHandler.post(() -> {
                                                                         // Create a fragment for this friend
                                                                         if (isAdded()) { // Check if Fragment is currently added to its activity.
@@ -211,8 +220,8 @@ public class YourFriendsFragment extends Fragment {
                                                                             FragmentManager fragmentManager = getChildFragmentManager();
                                                                             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                                                                             // Use channelName if it's not null, otherwise use "Channel not found"
-                                                                            String displayData = (channelName != null) ? channelName : "Channel not found";
-                                                                            fragmentTransaction.add(friendsLL.getId(), new FriendFragment(displayData, channelImageUrl)); // Pass channelImageUrl to FriendFragment
+                                                                            String displayData = (finalChannelName != null) ? finalChannelName : "Channel not found";
+                                                                            fragmentTransaction.add(friendsLL.getId(), new FriendFragment(displayData, finalChannelImageUrl)); // Pass channelImageUrl to FriendFragment
                                                                             fragmentTransaction.commit();
                                                                             Log.d("FriendsTT", "onComplete: User " + displayData + " Exists");
                                                                         }
@@ -254,7 +263,6 @@ public class YourFriendsFragment extends Fragment {
                                 }
                             }
                         });
-
                     } else {
                         // The document with the UID does not exist
                         Log.d("FriendsTT", "No such document");
@@ -267,21 +275,18 @@ public class YourFriendsFragment extends Fragment {
         return view;
     }
     public void sendEmail(String subject, String content, String to_email){
-
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{to_email});
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
         intent.putExtra(Intent.EXTRA_TEXT, content);
-
         intent.setPackage(null);
         startActivity(Intent.createChooser(intent, "Choose an app:"));
-
         Toast.makeText(getActivity(), "Invitation in progress ...", Toast.LENGTH_SHORT).show();
 
     }
     public boolean isValidEmail(String email) {
-        String emailPattern = "[a-zA-Z0-9._-]+@gmail+\\.+com+";
+        String emailPattern = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}";
         return email.matches(emailPattern);
     }
 }

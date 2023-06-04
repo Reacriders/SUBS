@@ -3,6 +3,8 @@ package com.reacriders.subs;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,6 +14,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -20,8 +24,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.reacriders.subs.databinding.ActivityGeneralBinding;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -48,6 +55,11 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
 
     private boolean isChannelIdNone;
     private String channelName;
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable runnableCode;
+
+    private boolean fetchYTData;
+
 
 
 
@@ -72,11 +84,27 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
 
         executorService = Executors.newSingleThreadExecutor();
         mainThreadHandler = new Handler(Looper.getMainLooper());
+        fetchYTData = false;
 
         fetchChannelName();
 
         // If the user is logged in, get the score
         FirestoreHelper.updateScore(currentUser, starValue, pg);
+
+        // Define the task to be run here
+        runnableCode = new Runnable() {
+            @Override
+            public void run() {
+                FirestoreHelper.updateScore(currentUser, starValue, pg);
+                if(fetchYTData){
+                    fetchChannelName();
+                }
+                handler.postDelayed(this, 3000);
+            }
+        };handler.post(runnableCode);
+
+
+
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -127,6 +155,7 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        handler.removeCallbacks(runnableCode);
         executorService.shutdown();
     }
 
@@ -147,6 +176,7 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
                     if ("none".equals(channelId)) {
                         Log.d("channelId", "fetchChannelName: It is none");
                         ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager().findFragmentByTag("ProfileFragment");
+                        fetchYTData = true;
                         if (profileFragment != null) {
                             isChannelIdNone = true; //// karevor mas
                             Log.d("channelId", "fetchChannelName: It's not null");
@@ -158,10 +188,31 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
                     } else {
                         isChannelIdNone = false; //// karevor mas
                         Future<String> future = executorService.submit(() -> YoutubeAPI.getChannelName(channelId));
+                        if(fetchYTData){
+                            Intent intent = getIntent();
+                            finish();
+                            startActivity(intent);
+                        }
                         executorService.submit(() -> {
                             try {
                                 final String profileImageUrl = YoutubeAPI.getProfileImageUrl(channelId);
                                 final String channelName = future.get();
+                                // Adding or updating the fields profileImageUrl and channelName in Firestore
+                                Map<String, Object> data = new HashMap<>();
+                                data.put("profileImageUrl", profileImageUrl);
+                                data.put("channelName", channelName);
+                                docRef.set(data, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d("Firestore", "Document has been saved!");
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w("Firestore", "Document was not saved!", e);
+                                    }
+                                });
+
                                 mainThreadHandler.post(() -> {
                                     if (channelName != null) {
                                         channelNameTextView.setText(channelName);
@@ -236,5 +287,6 @@ public class GeneralActivity extends AppCompatActivity implements YourSettingsFr
     public ProgressBar getPg() {
         return pg;
     }
+
 }
 

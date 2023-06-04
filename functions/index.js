@@ -1,39 +1,18 @@
-const functions = require("firebase-functions");
+const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-exports.deleteOldItems = functions.pubsub.schedule('every 5 minutes').onRun((context) => {
-    const currentTime = admin.firestore.Timestamp.now();
-    const tenSecondsAgo = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 10 * 1000)); // 10 seconds ago
-    const twentySecondsAgo = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 20 * 1000)); // 20 seconds ago
+exports.deleteSpecificVideo = functions.https.onRequest((request, response) => {
+    const firestore = admin.firestore();
+    const videoId = "videoId";  // replace this with the actual ID
+    const docRef = firestore.collection('Videos').doc(videoId);
 
-    const videosRef = admin.firestore().collection('Videos');
-
-    return videosRef.where('publish_type', '==', true).where('creationDate', '<=', tenSecondsAgo)
-        .get()
-        .then(querySnapshot => {
-            querySnapshot.forEach(doc => {
-                doc.ref.delete().then(() => {
-                    console.log('Document deleted successfully');
-                }).catch(error => {
-                    console.error('Error deleting document: ', error);
-                });
-            });
-        })
+    docRef.delete()
         .then(() => {
-            return videosRef.where('publish_type', '==', false).where('creationDate', '<=', twentySecondsAgo)
-                .get()
-                .then(querySnapshot => {
-                    querySnapshot.forEach(doc => {
-                        doc.ref.delete().then(() => {
-                            console.log('Document deleted successfully');
-                        }).catch(error => {
-                            console.error('Error deleting document: ', error);
-                        });
-                    });
-                })
+            response.send(`Video with ID: ${videoId} has been deleted successfully.`);
         })
         .catch(error => {
-            console.log('Error getting documents: ', error);
+            console.error("Error removing document: ", error);
+            response.status(500).send(error);
         });
 });

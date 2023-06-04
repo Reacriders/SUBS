@@ -1,0 +1,173 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingVertical="10dp"
+    android:background="?attr/colorSurface">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/Intro"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <FrameLayout
+            android:id="@+id/videoImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints">
+
+            <ImageView
+                android:id="@+id/videoImage720"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/video_err"
+                android:background="?attr/colorSecondaryVariant"
+                tools:ignore="MissingConstraints" />
+
+            <LinearLayout
+                android:id="@+id/shadowLL"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/shadow"
+                android:visibility="gone"
+                android:orientation="vertical"></LinearLayout>
+        </FrameLayout>
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImage"
+            android:layout_marginStart="10dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="?attr/colorSecondaryVariant"
+            android:scaleType="centerCrop"
+            app:civ_border_width="7dp"
+            app:civ_border_color="?attr/colorSurface"
+            tools:ignore="MissingConstraints"
+            app:layout_constraintTop_toBottomOf="@id/videoImage"
+            app:layout_constraintBottom_toBottomOf="@id/videoImage"
+            app:layout_constraintStart_toStartOf="@id/videoImage"/>
+
+        <TextView
+            android:id="@+id/videoDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0:00:00"
+            android:textColor="@color/white"
+            android:background="@color/tr_black"
+            android:padding="3dp"
+            app:layout_constraintBottom_toBottomOf="@id/videoImage"
+            app:layout_constraintEnd_toEndOf="@id/videoImage"/>
+        <LinearLayout
+            android:id="@+id/Naming"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="7dp"
+            app:layout_constraintTop_toBottomOf="@id/videoImage"
+            app:layout_constraintStart_toEndOf="@+id/profileImage">
+            <TextView
+                android:id="@+id/videoTitle"
+                android:layout_width="200dp"
+                android:layout_height="20dp"
+                android:gravity="center_vertical"
+                android:textSize="15dp"
+                android:background="@drawable/vidbord"
+                android:textStyle="bold"
+                android:textColor="?attr/colorPrimary"
+                android:paddingHorizontal="5dp"
+                android:singleLine="true"
+                android:ellipsize="end"/>
+            <TextView
+                android:id="@+id/tags"
+                android:layout_width="200dp"
+                android:layout_height="20dp"
+                android:gravity="center_vertical"
+                android:textSize="15dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/vidbord"
+                android:backgroundTint="?attr/colorSecondaryVariant"
+                android:paddingHorizontal="5dp"
+                android:singleLine="true"
+                android:ellipsize="end"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/warn_icon"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_warning_r"
+            app:layout_constraintBottom_toBottomOf="@id/Naming"
+            app:layout_constraintTop_toTopOf="@id/Naming"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginRight="10dp"
+            app:tint="?attr/colorSecondaryVariant"/>
+        <ImageView
+            android:id="@+id/checked_icon"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_checked_f"
+            app:layout_constraintTop_toTopOf="@id/videoImage"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="10dp"
+            app:tint="@color/green"/>
+        <LinearLayout
+            android:id="@+id/checksLL"
+            android:visibility="gone"
+            android:layout_width="200dp"
+            android:layout_height="20dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            tools:ignore="MissingConstraints"
+            android:layout_margin="10dp"
+            app:layout_constraintTop_toTopOf="@id/videoImage"
+            app:layout_constraintStart_toStartOf="@id/videoImage"
+            app:layout_constraintEnd_toEndOf="@+id/videoImage"
+            android:background="@drawable/vidbord"
+            android:backgroundTint="?attr/colorOnPrimary"
+            android:padding="2dp">
+            <LinearLayout
+                android:visibility="invisible"
+                android:id="@+id/checked1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:backgroundTint="@color/green"
+                android:background="@drawable/left_border"
+                android:layout_margin="1dp"/>
+            <LinearLayout
+                android:visibility="invisible"
+                android:id="@+id/checked2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@color/green"
+                android:layout_margin="1dp"/>
+            <LinearLayout
+                android:visibility="invisible"
+                android:id="@+id/checked3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:backgroundTint="@color/green"
+                android:background="@drawable/right_border"
+                android:layout_margin="1dp"/>
+        </LinearLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</LinearLayout>
+
+

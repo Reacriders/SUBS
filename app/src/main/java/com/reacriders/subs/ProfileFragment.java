@@ -228,7 +228,7 @@ public class ProfileFragment extends Fragment {
                     myTasks.setText(spannableString);
                     myTasks.setTextColor(getPrimaryColor());
 
-
+                    loadFragment(new YourTasksFragment());
                     fragmentContainer.setVisibility(View.VISIBLE);
                 }
                 track = track+1;

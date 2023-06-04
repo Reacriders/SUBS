@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+    <ScrollView
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/TaskList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+            <LinearLayout
+                android:id="@+id/guide_LL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:gravity="center_horizontal">
+                <TextView
+                    android:id="@+id/guide_text"
+                    android:padding="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Troubleshooting Guide for Video Access \n\nIn the event that you do not see your task videos within our app, please don't worry. Below is a step-by-step guide on how to resolve the issue:\n\n   Step 1: Verify Your Internet Connection\nFirst and foremost, confirm that you have a stable internet connection. If you are connected but still unable to view your task videos, proceed to Step 2.\n\n   Step 2: Adjust Your YouTube Privacy Settings\nThe issue might be due to your YouTube privacy settings. The &quot;Keep all my subscriptions private&quot; toggle in your YouTube settings may be enabled, preventing our app from accessing information about your subscriptions.\n\nTo disable this setting, follow the instructions below:
+\n      1)Open YouTube and navigate to 'Settings'.
+\n      2)Within 'Settings', locate and select the 'Privacy' section.
+\n      3)In 'Privacy' settings, you will find a toggle switch labeled &quot;Keep all my subscriptions private.&quot;
+\n      4)Ensure that this switch is turned off.
+\n\n   By doing so, you grant us access to information about your subscriptions, enabling our app to check your task completion status more effectively. Please remember that the security and privacy of your data is our top priority. We only access this information to enhance your app experience and ensure the effective functionality of our services. We hope this guide is useful and assists you in resolving any issues you encounter. If you continue to experience difficulty, please reach out to our customer support for further assistance.">
+
+                </TextView>
+                <Button
+                    android:id="@+id/sendEmailButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📩 send an email to the customer support center"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

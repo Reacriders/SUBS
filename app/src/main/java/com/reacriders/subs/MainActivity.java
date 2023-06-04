@@ -25,6 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -39,6 +40,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -187,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, GeneralActivity.class);
             intent.putExtra("fragment", "profile");
             startActivity(intent);
+            overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
             finish();
         }
     }
@@ -416,8 +419,36 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "onSuccess: Logged In...\n" + email);
                             Toast.makeText(MainActivity.this, "Logged In...\n" + email, Toast.LENGTH_SHORT).show();
 
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            DocumentReference docRef = db.collection("Users").document(uid);
 
-                            // ete Usersi mej uid i andunov documentum chka channel uremn mihat fetchYoutubeChannelId
+                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document != null) {
+                                            if (document.exists()) {
+                                                Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+
+                                                // Check if "channel" field exists
+                                                if (document.contains("channel")) {
+                                                    // The "channel" field exists
+                                                    Log.d(TAG, "Channel exists");
+                                                } else {
+                                                    // The "channel" field doesn't exist, call fetchYoutubeChannelId
+                                                    Log.d(TAG, "Channel doesn't exist, fetching YouTube Channel ID...");
+                                                    fetchYoutubeChannelId();
+                                                }
+                                            } else {
+                                                Log.d(TAG, "No such document");
+                                            }
+                                        }
+                                    } else {
+                                        Log.d(TAG, "get failed with ", task.getException());
+                                    }
+                                }
+                            });
 
 
 
@@ -425,6 +456,7 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = new Intent(MainActivity.this, GeneralActivity.class);
                         intent.putExtra("fragment", "profile");
                         startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
                         finish();
                     }
                 })
