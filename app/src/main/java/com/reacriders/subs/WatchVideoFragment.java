@@ -436,6 +436,27 @@ public class WatchVideoFragment extends Fragment {
                                         }
                                     }
                                 });
+                            }else{
+                                CollectionReference likesRef = docRef.collection("likes");
+
+                                // Check if the 'likes' collection already contains the document with id 'videoId'
+                                likesRef.document(videoId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot document = task.getResult();
+                                            if (document.exists()) {
+                                                Log.d("Firestore", "Document already exists!");
+                                                shouldCheckTubsUp = false;
+                                                likePb.setVisibility(View.GONE);
+                                                likeTick.setVisibility(View.VISIBLE);
+                                            }
+                                        } else {
+                                            Log.d("Firestore", "get failed with ", task.getException());
+                                        }
+                                    }
+                                });
+
                             }
                         }
                     });
