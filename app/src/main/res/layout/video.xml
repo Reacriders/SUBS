@@ -87,7 +87,10 @@
             android:layout_marginRight="20dp"
             android:text="Video"
             android:textColor="?attr/colorPrimary"
-            android:textSize="17dp"/>
+            android:textSize="15dp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:ellipsize="end"/>
         <TextView
             android:id="@+id/videoDuration"
             android:layout_width="match_parent"
@@ -96,7 +99,6 @@
             android:text="Duration"
             android:textColor="?attr/colorSecondary"
             android:textSize="15dp"/>
-
     </LinearLayout>
 
 </LinearLayout>

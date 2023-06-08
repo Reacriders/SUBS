@@ -15,6 +15,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -37,7 +39,7 @@ public class TaskVideo extends Fragment {
     private de.hdodenhof.circleimageview.CircleImageView profileImage;
     private TextView videoDuration, videoTitle, tags;
     private ImageView warnIcon, checkedIcon;
-    private LinearLayout checksLL, checked1, checked2, checked3, shadow;
+    private LinearLayout checksLL, checked1, checked2, checked3, shadow, VideoViewUI;
     private String videoId,publisherChannelId,category,description,duration,publisher,title;
     private int reports, minutes;
     private boolean publishType, flash;
@@ -54,6 +56,34 @@ public class TaskVideo extends Fragment {
         this.minutes = minutes;
         this.publishType = publishType;
         this.flash = flash;
+    }
+    private void openWatchVideoFragment() {
+        // Create new fragment and transaction
+        WatchVideoFragment newFragment = new WatchVideoFragment();
+
+        // Set Arguments (Bundle)
+        Bundle args = new Bundle();
+        args.putString("videoId", videoId);
+        args.putString("publisherChannelId", publisherChannelId);
+        args.putString("category", category);
+        args.putString("description", description);
+        args.putString("duration", duration);
+        args.putString("publisher", publisher);
+        args.putString("title", title);
+        args.putInt("reports", reports);
+        args.putInt("minutes", minutes);
+        args.putBoolean("publishType", publishType);
+        args.putBoolean("flash", flash);
+
+        newFragment.setArguments(args);
+
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        transaction.replace(R.id.fragment_container, newFragment);
+
+        // Commit the transaction
+        transaction.commit();
     }
     @SuppressLint("MissingInflatedId")
     @Override
@@ -74,6 +104,7 @@ public class TaskVideo extends Fragment {
         checked2 = view.findViewById(R.id.checked2);
         checked3 = view.findViewById(R.id.checked3);
         shadow = view.findViewById(R.id.shadowLL);
+        VideoViewUI = view.findViewById(R.id.VideoView_Data_UI);
 
         // Set video title
         videoTitle.setText(title);
@@ -104,7 +135,7 @@ public class TaskVideo extends Fragment {
                                 if (document.exists() && document.contains("profileImageUrl")) {
                                     // Get the profileImageUrl from the document
                                     String profileImageUrl = document.getString("profileImageUrl");
-                                    shadow.setVisibility(View.VISIBLE);
+
 
                                     // Load the image into profileImage ImageView
                                     Glide.with(TaskVideo.this)
@@ -151,6 +182,7 @@ public class TaskVideo extends Fragment {
                             Glide.with(TaskVideo.this)
                                     .load(videoImageUrl)
                                     .into(videoImage);
+                            shadow.setVisibility(View.VISIBLE);
                         }
                     }
 
@@ -160,6 +192,13 @@ public class TaskVideo extends Fragment {
                         videoImage.setImageDrawable(errorDrawable);
                     }
                 });
+
+        VideoViewUI.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openWatchVideoFragment();
+            }
+        });
 
 
 

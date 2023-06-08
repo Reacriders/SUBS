@@ -13,4 +13,7 @@
     <color name="blue">#2196F3</color>
     <color name="green">#4CAF50</color>
     <color name="tr_black">#61000000</color>
+    <color name="yellow">#FFC107</color>
+    <color name="tr_yellow">#AFFFC107</color>
+    <color name="tr_red">#99FF0000</color>
 </resources>

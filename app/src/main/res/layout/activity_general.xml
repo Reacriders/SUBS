@@ -75,17 +75,6 @@
         app:menu="@menu/bottom_navigation_menu"
         app:layout_constraintBottom_toBottomOf="parent"
         android:background="?attr/colorOnPrimary"/>
-    <me.itangqi.waveloadingview.WaveLoadingView
-        android:id="@+id/waveLoadingView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:wlv_progressValue="100"
-        app:wlv_waveColor="#0000FF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingClass" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

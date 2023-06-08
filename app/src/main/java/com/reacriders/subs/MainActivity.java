@@ -1,8 +1,10 @@
 package com.reacriders.subs;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.UiModeManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -34,7 +36,13 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
+import com.google.api.services.youtube.model.Playlist;
+import com.google.api.services.youtube.model.PlaylistItem;
+import com.google.api.services.youtube.model.PlaylistItemListResponse;
+import com.google.api.services.youtube.model.PlaylistItemSnippet;
+import com.google.api.services.youtube.model.PlaylistListResponse;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,8 +54,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.reacriders.subs.databinding.ActivityMainBinding;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private ConnectivityManager connectivityManager;
     private TextView checkText;
     private com.google.android.gms.common.SignInButton sgnBtn;
-
+    private String channelId;
 
     private ImageView mode;
     private ImageView cloud;
@@ -105,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken( getString(R.string.default_web_client_id)) // animast error
+                .requestIdToken( getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
@@ -208,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
                 firebaseAuthWithGoogleAccount(account);
 
                 googleAccountCredential = GoogleAccountCredential.usingOAuth2(
-                        this, Collections.singleton("https://www.googleapis.com/auth/youtube.readonly"));
+                        this, Arrays.asList("https://www.googleapis.com/auth/youtube.readonly", "https://www.googleapis.com/auth/youtube.force-ssl"));
                 googleAccountCredential.setSelectedAccountName(account.getEmail());
                 youtube = new YouTube.Builder(
                         new NetHttpTransport(),
@@ -216,6 +227,10 @@ public class MainActivity extends AppCompatActivity {
                         googleAccountCredential)
                         .setApplicationName("YourAppName")
                         .build();
+                SharedPreferences sharedPref = getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("accountName", account.getEmail());
+                editor.apply();
 
             } catch (Exception e) {
                 //failed google sign in
@@ -485,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
                 YouTube.Channels.List channelsList = youtube.channels().list("id");
                 channelsList.setMine(true);
                 ChannelListResponse response = channelsList.execute();
-                String channelId = response.getItems().get(0).getId();
+                channelId = response.getItems().get(0).getId();
 
                 Log.d("Youtube_problem_111", "Channel ID: " + channelId);
 

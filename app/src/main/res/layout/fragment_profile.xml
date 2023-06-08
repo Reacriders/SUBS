@@ -68,7 +68,9 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:textSize="15dp"
-                    android:text="Email"/>
+                    android:text="Email"
+                    android:singleLine="true"
+                    android:ellipsize="end"/>
 
                 <TextView
                     android:id="@+id/UID"
@@ -77,7 +79,9 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:textSize="13dp"
-                    android:text="id" />
+                    android:text="id"
+                    android:singleLine="true"
+                    android:ellipsize="end"/>
             </LinearLayout>
 
             <LinearLayout
